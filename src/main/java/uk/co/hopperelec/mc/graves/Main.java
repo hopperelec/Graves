@@ -33,7 +33,9 @@ public final class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        List<ItemStack> mainChestItems = event.getDrops();
+        EntityEquipment equipment = event.getEntity().getEquipment();
+        if (equipment == null) return;
+        List<ItemStack> mainChestItems = event.getDrops().subList(0,(int)(event.getDrops().size()-Arrays.stream(equipment.getArmorContents()).filter(Objects::nonNull).count())-1);
 
         if (mainChestItems.size() > 0) {
             ArmorStand grave = (ArmorStand) player.getWorld().spawnEntity(player.getLocation(), EntityType.ARMOR_STAND);
@@ -41,21 +43,19 @@ public final class Main extends JavaPlugin implements Listener {
 
             EntityEquipment armorStandEquipment = grave.getEquipment();
             if (armorStandEquipment == null) {
-                newDrops.addAll(Arrays.asList(player.getInventory().getArmorContents()));
+                newDrops.addAll(Arrays.asList(equipment.getArmorContents()));
                 return;
             }
-            System.out.println("Test 1");
-            armorStandEquipment.setArmorContents(player.getInventory().getArmorContents());
+            armorStandEquipment.setArmorContents(equipment.getArmorContents());
 
             if (mainChestItems.size() > 27) {
                 ItemStack extraChest = new ItemStack(Material.CHEST);
                 ItemMeta extraChestMeta = extraChest.getItemMeta();
-                List<ItemStack> extraChestItems = mainChestItems.subList(26, (int) (mainChestItems.size() - Arrays.stream(armorStandEquipment.getArmorContents()).filter(Objects::nonNull).count()));
+                List<ItemStack> extraChestItems = mainChestItems.subList(26, mainChestItems.size());
                 if (extraChestMeta == null) {
                     newDrops.addAll(extraChestItems);
                     return;
                 }
-                System.out.println("Test 2");
                 extraChestMeta.setDisplayName("Rest of your inventory");
                 BlockStateMeta extraChestBlockStateMeta = (BlockStateMeta) extraChestMeta;
                 BlockState extraChestBlockState = extraChestBlockStateMeta.getBlockState();
@@ -102,7 +102,7 @@ public final class Main extends JavaPlugin implements Listener {
             return;
         }
         Bukkit.getScheduler().scheduleSyncDelayedTask(this,() -> {
-            if (Arrays.stream(equipment.getArmorContents()).noneMatch(i -> i.getType().equals(Material.AIR)) && equipment.getItemInMainHand().getType().equals(Material.AIR) && equipment.getItemInOffHand().getType().equals(Material.AIR)) event.getRightClicked().remove();
+            if (Arrays.stream(equipment.getArmorContents()).noneMatch(i -> i.getType()!= Material.AIR) && equipment.getItemInMainHand().getType().equals(Material.AIR) && equipment.getItemInOffHand().getType().equals(Material.AIR)) event.getRightClicked().remove();
         });
     }
 }
