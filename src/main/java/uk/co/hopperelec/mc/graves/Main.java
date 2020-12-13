@@ -1,6 +1,7 @@
 package uk.co.hopperelec.mc.graves;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.block.*;
 import org.bukkit.Material;
@@ -36,13 +37,14 @@ public final class Main extends JavaPlugin implements Listener {
 
         if (mainChestItems.size() > 0) {
             ArmorStand grave = (ArmorStand) player.getWorld().spawnEntity(player.getLocation(), EntityType.ARMOR_STAND);
-            event.getDrops().clear();
+            List<ItemStack> newDrops = new ArrayList<>();
 
             EntityEquipment armorStandEquipment = grave.getEquipment();
             if (armorStandEquipment == null) {
-                event.getDrops().addAll(Arrays.asList(player.getInventory().getArmorContents()));
+                newDrops.addAll(Arrays.asList(player.getInventory().getArmorContents()));
                 return;
             }
+            System.out.println("Test 1");
             armorStandEquipment.setArmorContents(player.getInventory().getArmorContents());
 
             if (mainChestItems.size() > 27) {
@@ -50,9 +52,10 @@ public final class Main extends JavaPlugin implements Listener {
                 ItemMeta extraChestMeta = extraChest.getItemMeta();
                 List<ItemStack> extraChestItems = mainChestItems.subList(26, (int) (mainChestItems.size() - Arrays.stream(armorStandEquipment.getArmorContents()).filter(Objects::nonNull).count()));
                 if (extraChestMeta == null) {
-                    event.getDrops().addAll(extraChestItems);
+                    newDrops.addAll(extraChestItems);
                     return;
                 }
+                System.out.println("Test 2");
                 extraChestMeta.setDisplayName("Rest of your inventory");
                 BlockStateMeta extraChestBlockStateMeta = (BlockStateMeta) extraChestMeta;
                 BlockState extraChestBlockState = extraChestBlockStateMeta.getBlockState();
@@ -65,7 +68,7 @@ public final class Main extends JavaPlugin implements Listener {
             ItemStack mainChest = new ItemStack(Material.CHEST);
             ItemMeta mainChestMeta = mainChest.getItemMeta();
             if (mainChestMeta == null) {
-                event.getDrops().addAll(mainChestItems);
+                newDrops.addAll(mainChestItems);
                 return;
             }
             mainChestMeta.setDisplayName("Your inventory");
@@ -84,7 +87,10 @@ public final class Main extends JavaPlugin implements Listener {
             grave.setGlowing(true);
 
             graves.add(grave);
-            player.sendMessage("A grave has been made for your stuff at " + grave.getLocation().toString());
+            Location loc = grave.getLocation();
+            player.sendMessage("A grave has been made for your stuff at "+(int)loc.getX()+" "+(int)loc.getY()+" "+(int)loc.getZ());
+            event.getDrops().clear();
+            event.getDrops().addAll(newDrops);
         }
     }
 
