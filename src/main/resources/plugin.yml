@@ -1,8 +1,7 @@
 name: Graves
 version: ${project.version}
-main: uk.co.hopperelec.mc.graves.Main
-api-version: 1.16
+main: uk.co.hopperelec.mc.graves.GravesPlugin
+api-version: 1.21
 prefix: Graves
-authors: [ HopperElecYT ]
+authors: [ hopperelec ]
 description: Plugin made for Demonetized SMP
-website: hopperelec.co.uk
